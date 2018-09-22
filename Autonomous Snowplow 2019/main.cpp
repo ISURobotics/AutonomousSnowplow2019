@@ -12,8 +12,8 @@
 /*----------------------------------------------------------------
                           main variables
 ----------------------------------------------------------------*/
-unsigned long long              main_loop_iterations = 0;
-unsigned long long              total_failed_scans = 0;
+unsigned long              main_loop_iterations = 0;
+unsigned long              total_failed_scans = 0;
 atomic<double>                  orientation = 0.0;
 atomic<double>                  x_position = NULL;
 atomic<double>                  y_position = NULL;
