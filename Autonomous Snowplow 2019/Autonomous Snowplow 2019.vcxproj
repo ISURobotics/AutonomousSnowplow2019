@@ -72,6 +72,9 @@
     <LibraryPath>C:\ISU Robotics\AutonomousSnowplow2019\packages\opencv.win.native.310.3.0\build\native\lib\x64\v140\Release;$(LibraryPath)</LibraryPath>
     <IncludePath>C:/ISU Robotics/dlib-version;$(IncludePath)</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LibraryPath>C:\ISU Robotics\AutonomousSnowplow2019\packages\opencv.win.native.310.3.0\build\native\lib\x64\v140\Release;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -109,10 +112,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:/ISU Robotics/dlib-19.16;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opencv_core310.lib;opencv_imgproc310.lib;opencv_videoio310.lib;opencv_highgui310.lib;opencv_ml310.lib;opencv_video310.lib;opencv_features2d310.lib;opencv_calib3d310.lib;opencv_objdetect310.lib;opencv_flann310.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -125,6 +130,7 @@
     <ClCompile Include="navigation_handler.cpp" />
     <ClCompile Include="imu_interface.cpp" />
     <ClCompile Include="serial_port.cpp" />
+    <ClCompile Include="stopsign_detector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Grid.h" />
@@ -136,6 +142,7 @@
     <ClInclude Include="local_handler.h" />
     <ClInclude Include="orientation_handler.h" />
     <ClInclude Include="SerialPort.h" />
+    <ClInclude Include="stopsign_detector.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -8,6 +8,7 @@
 #include "Grid.h"
 #include "navigation_handler.h"
 #include "motor_interface.h"
+#include "stopsign_detector.h"
 
 /*----------------------------------------------------------------
                           main variables
@@ -17,6 +18,7 @@ unsigned long long              total_failed_scans = 0;
 atomic<double>                  orientation = 0.0;
 atomic<double>                  x_position = NULL;
 atomic<double>                  y_position = NULL;
+atomic<bool>					stopsign_detected = NULL;
 drive_data_pkt                  drive_pkt = { STOP, 0x00, true, '\0' };
 
 int main() {
@@ -38,6 +40,7 @@ int main() {
 	grid_handler           Grid(&Lidar, &orientation, &x_position, &y_position);
 	navigation_handler     Nav(&orientation, &x_position, &y_position);
 	motor_interface        Motor(&drive_pkt);
+	stopsign_detector	   ss_det(true, &stopsign_detected);
 
 	/*---------------------------------------
 	start orientation and location threads.
@@ -45,6 +48,7 @@ int main() {
 	---------------------------------------*/
 	thread location_thread(&decawave_handler::run, Location);
 	thread orientation_thread(&orientation_handler::run, Orientation);
+	thread stopsign_thread(&stopsign_detector::run, ss_det);
 
 	/*This is so that we dont do anything until we get a position update
 	while( x_position == NULL && y_position == NULL ) {
@@ -55,6 +59,10 @@ int main() {
 	main snowplow execution loop
 	---------------------------------------*/
 	while (1) {
+
+		if (stopsign_detected) {
+			cout << "I see a stop sign." << endl;
+		}
 
 		/*---------------------------------------
 		perform scan and check for success

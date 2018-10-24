@@ -40,7 +40,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dlib-19.16\dlib\all\source.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stopsign_detector.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +72,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="motor_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stopsign_detector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
