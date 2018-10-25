@@ -19,7 +19,7 @@ atomic<double>                  orientation = 0.0;
 atomic<double>                  x_position = NULL;
 atomic<double>                  y_position = NULL;
 atomic<bool>					stopsign_detected = NULL;
-drive_data_pkt                  drive_pkt = { STOP, 0x00, true, '\0' };
+drive_data_pkt                  drive_pkt = { STOP, 0x00, TRUE, -1 };
 
 int main() {
 
@@ -40,26 +40,23 @@ int main() {
 	grid_handler           Grid(&Lidar, &orientation, &x_position, &y_position);
 	navigation_handler     Nav(&orientation, &x_position, &y_position);
 	motor_interface        Motor(&drive_pkt);
-	stopsign_detector	   ss_det(true, &stopsign_detected);
+	stopsign_detector	   ss_det(false, &stopsign_detected);
 
 	/*---------------------------------------
 	start orientation and location threads.
-	- eventually start stopsign here too
 	---------------------------------------*/
 	thread location_thread(&decawave_handler::run, Location);
 	thread orientation_thread(&orientation_handler::run, Orientation);
 	thread stopsign_thread(&stopsign_detector::run, ss_det);
-
-	/*This is so that we dont do anything until we get a position update
-	while( x_position == NULL && y_position == NULL ) {
-	  
-	}*/
 
 	/*---------------------------------------
 	main snowplow execution loop
 	---------------------------------------*/
 	while (1) {
 
+		/*---------------------------------------
+		Check for stopsign status
+		---------------------------------------*/
 		if (stopsign_detected) {
 			cout << "I see a stop sign." << endl;
 		}
@@ -67,33 +64,35 @@ int main() {
 		/*---------------------------------------
 		perform scan and check for success
 		---------------------------------------*/
-		if (!Lidar.perform_scan()) {
-			cout << "Error performing scan. Trying again..." << endl;
-			total_failed_scans += 1;
-			continue;
-		}
+		//if (!Lidar.perform_scan()) {
+		//	cout << "Error performing scan. Trying again..." << endl;
+		//	total_failed_scans += 1;
+		//	continue;
+		//}
 
 		/*---------------------------------------
 		analyze scan (change raw hex to angle and
 		distance pairs)
 		---------------------------------------*/
-		Lidar.analyze_scan();
+		//Lidar.analyze_scan();
 
 		/*---------------------------------------
 		update map of hits
 		---------------------------------------*/
-		if (!Grid.update_hit_map()) {
-			cout << "Error updating hit map. Trying again..." << endl;
-			continue;
-		}
+		//if (!Grid.update_hit_map()) {
+		//	cout << "Error updating hit map. Trying again..." << endl;
+		//	continue;
+		//}
 
 		/*---------------------------------------
 		get drive operation from nav interface
 		---------------------------------------*/
 		Nav.update( &drive_pkt );
 
+		/*---------------------------------------
+		send drive operation to motors
+		---------------------------------------*/
 		Motor.send_pkt_to_motors();
-		//Sleep(2000);
 
 		/*---------------------------------------
 		print hit/object map
@@ -109,9 +108,7 @@ int main() {
 			cout << "Orientation: " << orientation << endl;
 			cout << "x pos: " << x_position << endl;
 			cout << "y pos: " << y_position << endl;
-		}
-		//cout << "Orientation: " << orientation << endl;
-		
+		}		
 
 #if MAIN_TIMING
 		//calculate run time
