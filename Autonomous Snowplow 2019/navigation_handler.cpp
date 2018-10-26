@@ -120,13 +120,13 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 			---------------------------------------------*/
 			if( modified ) {
 				if( abs( lower_bound - cur_ori ) > abs( higher_bound - cur_ori ) ) {
-					cout << "Need to turn right." << endl;
+					//cout << "Need to turn right." << endl;
 					drive_pkt->drive_op  = RIGHT;
 					drive_pkt->intensity = get_turn_power( abs( higher_bound - cur_ori ) );
 
 				}
 				else {
-					cout << "Need to turn left." << endl;
+					//cout << "Need to turn left." << endl;
 					drive_pkt->drive_op  = LEFT;
 					drive_pkt->intensity = get_turn_power( abs( lower_bound - cur_ori ) );
 				}
@@ -142,12 +142,12 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 					r_turn_deg = cur_ori - prv_goal_orientation;
 				}
 				if (l_turn_deg < r_turn_deg) {
-					cout << "Need to turn left. Non-modified." << endl;
+					//cout << "Need to turn left. Non-modified." << endl;
 					drive_pkt->drive_op  = LEFT;
 					drive_pkt->intensity = get_turn_power( l_turn_deg );
 				}
 				else {
-					cout << "Need to turn right. Non-modified." << endl;
+					//cout << "Need to turn right. Non-modified." << endl;
 					drive_pkt->drive_op  = RIGHT;
 					drive_pkt->intensity = get_turn_power( r_turn_deg );
 				}

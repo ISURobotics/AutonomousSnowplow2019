@@ -156,6 +156,7 @@ void decawave_handler::run() {
 						}
 						*prv_x_pos_ref = temp_x;
 						*prv_y_pos_ref = temp_y;
+						cout << "updated" << endl;
 #if PRINT_PARSED_LOCATION
 						cout << "x location: ";
 						cout << temp_x;
