@@ -10,7 +10,7 @@
 using namespace std;
 
 #define PRINT_RECENT_DATA_PKT ( FALSE )
-#define PRINT_PARSED_LOCATION ( TRUE )
+#define PRINT_PARSED_LOCATION ( FALSE )
 
 class decawave_handler {
 

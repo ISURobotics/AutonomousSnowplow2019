@@ -54,9 +54,9 @@ void decawave_handler::run() {
 		on the last received data.
 		---------------------------------------*/
 		if (strlen(incomingData) != 0) {
-			cout << "poll counter: " << poll_counter << endl;
+			//cout << "poll counter: " << poll_counter << endl;
 			poll_counter = 0;
-			cout << "got new data: " << incomingData << endl;
+			//cout << "got new data: " << incomingData << endl;
 		}
 		else {
 			poll_counter++;
@@ -71,9 +71,9 @@ void decawave_handler::run() {
 				recent_scan = building_scan;
 
 #if PRINT_RECENT_DATA_PKT
-				cout << "================== NEW DECAWAVE LOCATION PACKET ================" << endl;
+				//cout << "================== NEW DECAWAVE LOCATION PACKET ================" << endl;
 				for (int i = 0; i < recent_scan.length(); i++) {
-					cout << recent_scan[i];
+					//cout << recent_scan[i];
 				}
 #endif
 				/*--------------------------------------------------
@@ -132,7 +132,7 @@ void decawave_handler::run() {
 							string x_string = x_str.substr(1, x_tot);
 							istringstream i(x_string);
 							if (!(i >> temp_x)) {
-								cout << "Conversion error with x-location in decawave handler.";
+								std::cout << "Conversion error with x-location in decawave handler.";
 							}
 						}
 
@@ -144,15 +144,43 @@ void decawave_handler::run() {
 							string y_string = y_str.substr(0, y_tot);
 							istringstream i(y_string);
 							if (!(i >> temp_y)) {
-								cout << "Conversion error with y-location in decawave handler.";
+								std::cout << "Conversion error with y-location in decawave handler.";
 							}
 						}
 						/*--------------------------------------------------
 						Set the actual position values to the converted ones
 						--------------------------------------------------*/
+						if (temp_x == 0 && temp_y == 0)
+						{
+							continue;
+						}
 						*prv_x_pos_ref = temp_x;
 						*prv_y_pos_ref = temp_y;
+#if PRINT_PARSED_LOCATION
+						cout << "x location: ";
+						cout << temp_x;
+						/*int maxScanRangeX = x_str.length() - 1;
+						for (int i = 1; i < maxScanRangeX; i++) {
+						cout << x_str[i];
+						}
+						int maxScanRangeY = y_str.length() - 4;
+						if (y_str.length() > 4)
+						{
+						maxScanRangeY = 5;
+						}
+						else
+						{
+						maxScanRangeY = 0;
+						}*/
+						cout << endl << "y location: ";
+						cout << temp_y;
+						/*for (int i = 0; i < 5; i++) {
+						cout << y_str[i];
+						}*/
+						cout << endl;
+#endif
 					}
+
 					catch (const std::exception &exc)
 					{
 						/*--------------------------------------------------
@@ -163,18 +191,29 @@ void decawave_handler::run() {
 				}
 				first_scan = false;
 
-#if PRINT_PARSED_LOCATION
-				cout << "x location: ";
-				for (int i = 0; i < x_str.length(); i++) {
-					cout << x_str[i];
-				}
-
-				cout << endl << "y location: ";
-				for (int i = 0; i < y_str.length(); i++) {
-					cout << y_str[i];
-				}
-				cout << endl;
-#endif
+//#if PRINT_PARSED_LOCATION
+//				cout << "x location: ";
+//				cout << temp_x;
+//				/*int maxScanRangeX = x_str.length() - 1;
+//				for (int i = 1; i < maxScanRangeX; i++) {
+//					cout << x_str[i];
+//				}
+//				int maxScanRangeY = y_str.length() - 4;
+//				if (y_str.length() > 4)
+//				{
+//					maxScanRangeY = 5;
+//				}
+//				else
+//				{
+//					maxScanRangeY = 0;
+//				}*/
+//				cout << endl << "y location: ";
+//				cout << temp_y;
+//				/*for (int i = 0; i < 5; i++) {
+//					cout << y_str[i];
+//				}*/
+//				cout << endl;
+//#endif
 
 			}
 			/*--------------------------------------------------
