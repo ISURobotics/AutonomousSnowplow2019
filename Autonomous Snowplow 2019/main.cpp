@@ -19,7 +19,7 @@ atomic<double>                  orientation = 0.0;
 atomic<double>                  x_position = NULL;
 atomic<double>                  y_position = NULL;
 atomic<bool>					stopsign_detected = NULL;
-drive_data_pkt                  drive_pkt = { STOP, 0x00, TRUE, -1 };
+drive_data_pkt                  drive_pkt = { STOP, 0x00, TRUE, 0x5 };
 
 int main() {
 

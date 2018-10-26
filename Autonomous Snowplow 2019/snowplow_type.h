@@ -14,9 +14,9 @@ Certain macro definitions as well as other options
 used here can be found in macro_defs.cpp
 ---------------------------------------------------*/
 #define LIDAR_IN_USE       LMS_511
-#define DECAWAVE_COM_PORT  ( "\\\\.\\COM6" )
+#define DECAWAVE_COM_PORT  ( "\\\\.\\COM7" )
 #define IMU_COM_PORT       ( "\\\\.\\COM3" )
-#define MOTOR_COM_PORT     ( "\\\\.\\COM7" )
+#define MOTOR_COM_PORT     ( "\\\\.\\COM6" )
 #define FIELD              CUSTOM
 #define MAP_RESOLUTION_M   ( 0.05 )
 #define MAP_OBJ_THRESH     ( 100 )
@@ -81,17 +81,17 @@ typedef vector<vector<int>> lidar_hit_map;
 
 typedef uint8_t drive_operation;
 enum {
-	STRAIGHT = 0,
-	RIGHT    = 1,
-	LEFT     = 2,
-	STOP     = 3
+	STRAIGHT = (char)0x0,
+	RIGHT    = (char)0x1,
+	LEFT     = (char)0x2,
+	STOP     = (char)0x3
 };
 
 typedef struct {
 	drive_operation drive_op;
 	unsigned char intensity;
 	bool changed;
-	char stop_char;
+	unsigned char stop_char;
 } drive_data_pkt;
 
 typedef struct {
