@@ -147,39 +147,26 @@ void decawave_handler::run() {
 								std::cout << "Conversion error with y-location in decawave handler.";
 							}
 						}
+
 						/*--------------------------------------------------
 						Set the actual position values to the converted ones
 						--------------------------------------------------*/
-						if (temp_x == 0 && temp_y == 0)
-						{
+						if (temp_x == 0 && temp_y == 0) {
 							continue;
 						}
+
 						*prv_x_pos_ref = temp_x;
 						*prv_y_pos_ref = temp_y;
 						cout << "updated" << endl;
+
 #if PRINT_PARSED_LOCATION
 						cout << "x location: ";
-						cout << temp_x;
-						/*int maxScanRangeX = x_str.length() - 1;
-						for (int i = 1; i < maxScanRangeX; i++) {
-						cout << x_str[i];
-						}
-						int maxScanRangeY = y_str.length() - 4;
-						if (y_str.length() > 4)
-						{
-						maxScanRangeY = 5;
-						}
-						else
-						{
-						maxScanRangeY = 0;
-						}*/
+						cout << temp_x << endl;
 						cout << endl << "y location: ";
-						cout << temp_y;
-						/*for (int i = 0; i < 5; i++) {
-						cout << y_str[i];
-						}*/
+						cout << temp_y << endl;
 						cout << endl;
 #endif
+
 					}
 
 					catch (const std::exception &exc)
@@ -191,30 +178,6 @@ void decawave_handler::run() {
 					}
 				}
 				first_scan = false;
-
-//#if PRINT_PARSED_LOCATION
-//				cout << "x location: ";
-//				cout << temp_x;
-//				/*int maxScanRangeX = x_str.length() - 1;
-//				for (int i = 1; i < maxScanRangeX; i++) {
-//					cout << x_str[i];
-//				}
-//				int maxScanRangeY = y_str.length() - 4;
-//				if (y_str.length() > 4)
-//				{
-//					maxScanRangeY = 5;
-//				}
-//				else
-//				{
-//					maxScanRangeY = 0;
-//				}*/
-//				cout << endl << "y location: ";
-//				cout << temp_y;
-//				/*for (int i = 0; i < 5; i++) {
-//					cout << y_str[i];
-//				}*/
-//				cout << endl;
-//#endif
 
 			}
 			/*--------------------------------------------------
