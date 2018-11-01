@@ -1,5 +1,17 @@
 import matplotlib.pyplot as plt
 
+def display_temperature():
+	temperature_file = open('practice_temp_data.txt', 'r')
+	temps = []
+
+	for line in temperature_file:
+		temps.append(float(line))
+
+	plt.subplot(222)
+	plt.plot(temps)
+	plt.title('temperature')
+	plt.grid(True)
+
 def display_location():
 	# open the generated location file, print pos 
 	location_file = open('practice_loc.txt', 'r')
@@ -10,7 +22,7 @@ def display_location():
 		position = line.split(',')
 		x.append(float(position[0]))
 		y.append(float(position[1][:len(position[1]) - 1]))
-		print("x: " + position[0] + " y: " + position[1], end="")
+		# print("x: " + position[0] + " y: " + position[1], end="")
 
 	plt.subplot(221)
 	plt.plot(x, y)
@@ -21,6 +33,7 @@ def display_location():
 def main():
 	plt.figure(1)
 	display_location()
+	display_temperature()
 	plt.show()
 
 if __name__ == "__main__":

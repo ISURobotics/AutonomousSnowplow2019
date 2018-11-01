@@ -5,7 +5,7 @@
 #include "lidar_handler.h"
 #include "orientation_handler.h"
 #include "local_handler.h"
-#include "Grid.h"
+#include "grid.h"
 #include "navigation_handler.h"
 #include "motor_interface.h"
 #include "stopsign_detector.h"
@@ -26,6 +26,8 @@ int main() {
 #if MAIN_TIMING
 	auto current_time = clock();
 #endif
+	//start timer for main loop print statements
+	auto print_timer = clock();
 
 	/*---------------------------------------
 	construct interfaces - they take in refs
@@ -54,11 +56,30 @@ int main() {
 	---------------------------------------*/
 	while (1) {
 
-		/*---------------------------------------
-		Check for stopsign status
-		---------------------------------------*/
+		/*-----------------------------------------------------------------
+		Check for stopsign. if there is one copy current command, send
+		stop command, when stopsign is gone send previous command to resume
+		operation
+		-----------------------------------------------------------------*/
 		if (stopsign_detected) {
-			cout << "I see a stop sign." << endl;
+			cout << "Stopsign detected." << endl;
+			drive_data_pkt ddp_copy;
+			memcpy(&ddp_copy, &drive_pkt, sizeof(drive_data_pkt));
+			drive_pkt.drive_op = STOP;
+			drive_pkt.changed = TRUE;
+			Motor.send_pkt_to_motors();
+			cout << "Send stop command." << endl;
+
+			Sleep(500);//waiting for atleast half a second
+			while (stopsign_detected) {
+				//wait for stop sign to go away
+			}
+
+			memcpy(&drive_pkt, &ddp_copy, sizeof(drive_data_pkt));
+			drive_pkt.changed = TRUE;
+			Motor.send_pkt_to_motors();
+			cout << "Resuming operation." << endl;
+			//resume previous command
 		}
 
 		/*---------------------------------------
@@ -95,9 +116,10 @@ int main() {
 		Motor.send_pkt_to_motors();
 
 		/*---------------------------------------
-		print hit/object map
+		print hit/object map - every 1.5s
 		---------------------------------------*/
-		if (main_loop_iterations % 100 == 0) {
+		if ((clock() - print_timer)/(double)CLOCKS_PER_SEC * 1000 > 1000) {
+			print_timer = clock();
 			cout << "=====================================================" << endl;
 			cout << "power:" << ((double)drive_pkt.intensity)/255.0*100.0 << "%" << endl;
 			//Grid.print_obj_map();

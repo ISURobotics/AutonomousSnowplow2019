@@ -6,6 +6,7 @@
 #include <string.h>
 #include "SerialPort.h"
 #include "snowplow_type.h"
+#include "data_log.h"
 
 using namespace std;
 

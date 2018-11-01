@@ -11,12 +11,17 @@ motor_interface::motor_interface( drive_data_pkt * drive_pkt ) {
 void motor_interface::send_pkt_to_motors() {
 	/*---------------------------------------------
 	check for a change to any value. if so send
-	new packet to arduino
+	new packet to arduino. artificially limiting
+	send rate because I don't know if these
+	functions wait between sends.
 	---------------------------------------------*/
 	if (prv_drive_pkt_ref->changed) {
 		prv_serial_connection->WriteData((char*)&(prv_drive_pkt_ref->drive_op), 1);
+		Sleep(2);
 		prv_serial_connection->WriteData((char*)&(prv_drive_pkt_ref->intensity), 1);
+		Sleep(2);
 		prv_serial_connection->WriteData((char*)&(prv_drive_pkt_ref->stop_char), 1);
+		Sleep(2);
 		/*---------------------------------------------
 		mark as not changed since it sent
 		---------------------------------------------*/

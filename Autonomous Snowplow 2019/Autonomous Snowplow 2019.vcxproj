@@ -122,6 +122,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dlib-19.16\dlib\all\source.cpp" />
+    <ClCompile Include="data_log.cpp" />
     <ClCompile Include="grid_handler.cpp" />
     <ClCompile Include="lidar_interface.cpp" />
     <ClCompile Include="location_interface.cpp" />
@@ -133,7 +134,8 @@
     <ClCompile Include="stopsign_detector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Grid.h" />
+    <ClInclude Include="data_log.h" />
+    <ClInclude Include="grid.h" />
     <ClInclude Include="lidar_handler.h" />
     <ClInclude Include="macro_defs.h" />
     <ClInclude Include="motor_interface.h" />

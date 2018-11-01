@@ -35,6 +35,8 @@ void decawave_handler::run() {
 	int poll_counter       = 0;
 	bool first_scan        = true;
 
+	data_logger position_log("position");
+
 	/*---------------------------------------
 	Run while connected to the arduino.
 	---------------------------------------*/
@@ -157,7 +159,11 @@ void decawave_handler::run() {
 
 						*prv_x_pos_ref = temp_x;
 						*prv_y_pos_ref = temp_y;
-						cout << "updated" << endl;
+						ostringstream log_string;
+						log_string << temp_x << "," << temp_y;
+
+						//log position to text file
+						position_log.log_data(log_string.str());
 
 #if PRINT_PARSED_LOCATION
 						cout << "x location: ";

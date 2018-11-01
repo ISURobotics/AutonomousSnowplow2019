@@ -1,4 +1,4 @@
-#include "Grid.h"
+#include "grid.h"
 
 /*---------------------------------------
 Grid constructor - builds the hit map
