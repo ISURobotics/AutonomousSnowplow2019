@@ -18,7 +18,7 @@ unsigned long long              total_failed_scans = 0;
 atomic<double>                  orientation = 0.0;
 atomic<double>                  x_position = NULL;
 atomic<double>                  y_position = NULL;
-atomic<bool>					stopsign_detected = NULL;
+atomic<bool>					stopsign_detected = NULL, location_ready = false, orientation_ready = false;
 drive_data_pkt                  drive_pkt = { STOP, 0x00, TRUE, 0x5 };
 
 int main() {
@@ -37,10 +37,9 @@ int main() {
 	whenever needed safely.
 	---------------------------------------*/
 	lidar_handler          Lidar;
-	orientation_handler    Orientation(&orientation);
-	decawave_handler       Location(&x_position, &y_position);
+	orientation_handler    Orientation(&orientation, &orientation_ready);
+	decawave_handler       Location(&x_position, &y_position, &location_ready);
 	grid_handler           Grid(&Lidar, &orientation, &x_position, &y_position);
-	navigation_handler     Nav(&orientation, &x_position, &y_position);
 	motor_interface        Motor(&drive_pkt);
 	stopsign_detector	   ss_det(false, &stopsign_detected);
 
@@ -50,6 +49,20 @@ int main() {
 	thread location_thread(&decawave_handler::run, Location);
 	thread orientation_thread(&orientation_handler::run, Orientation);
 	thread stopsign_thread(&stopsign_detector::run, ss_det);
+
+	/*---------------------------------------
+	wait for first orientation and location
+	readings
+	---------------------------------------*/
+	//while (!orientation_ready && !location_ready) {}
+
+	/*--------------------------------------------
+	Construct the navigation interface after
+	we know we have one reading from orientation
+	and location because the set orientation and
+	location will determine the next operation.
+	--------------------------------------------*/
+	navigation_handler     Nav(&orientation, &x_position, &y_position, &Motor);
 
 	/*---------------------------------------
 	main snowplow execution loop
@@ -118,7 +131,7 @@ int main() {
 		/*---------------------------------------
 		print hit/object map - every 1.5s
 		---------------------------------------*/
-		if ((clock() - print_timer)/(double)CLOCKS_PER_SEC * 1000 > 1000) {
+		if ((clock() - print_timer)/(double)CLOCKS_PER_SEC * 1000 > 500) {
 			print_timer = clock();
 			cout << "=====================================================" << endl;
 			cout << "power:" << ((double)drive_pkt.intensity)/255.0*100.0 << "%" << endl;

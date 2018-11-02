@@ -9,13 +9,10 @@ it can modify them without needing to return
 anything. They are atomic which means they can be 
 written to and read from different threads safely.
 --------------------------------------------------*/
-decawave_handler::decawave_handler(atomic<double> * x_ref, atomic<double> * y_ref) {
+decawave_handler::decawave_handler(atomic<double> * x_ref, atomic<double> * y_ref, atomic<bool> * location_ready) {
+	prv_loc_ready = location_ready;//set the ref to the variable in main to later change it in this thread
 	prv_x_pos_ref     = x_ref;
 	prv_y_pos_ref     = y_ref;
-	//setting position to 1,1 initially for testing but in the future the plow should wait until
-	//its first positional update to do anything. 
-	*prv_x_pos_ref    = 1.0;
-	*prv_y_pos_ref    = 1.0;
 }
 
 /*--------------------------------------------------
@@ -154,11 +151,13 @@ void decawave_handler::run() {
 						Set the actual position values to the converted ones
 						--------------------------------------------------*/
 						if (temp_x == 0 && temp_y == 0) {
-							continue;
+							continue;//i dont know what this line does or why its here but im too scared to take it out
 						}
 
 						*prv_x_pos_ref = temp_x;
 						*prv_y_pos_ref = temp_y;
+						*prv_loc_ready = true;//mark position as ready to read
+
 						ostringstream log_string;
 						log_string << temp_x << "," << temp_y;
 

@@ -14,7 +14,7 @@ def display_temperature():
 
 def display_location():
 	# open the generated location file, print pos 
-	location_file = open('practice_loc.txt', 'r')
+	location_file = open('position.txt', 'r')
 	x = []
 	y = []
 

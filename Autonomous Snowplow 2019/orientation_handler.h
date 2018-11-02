@@ -11,10 +11,11 @@
 class orientation_handler {
 
 public:
-	                    orientation_handler(atomic<double> * orientation);
+	                    orientation_handler(atomic<double> * orientation, atomic<bool> * orientation_ready);
 
 private:
 	atomic<double> *    prv_ori_ref;
+	atomic<bool> *      prv_ori_ready;
 
 public:
 	void                run();

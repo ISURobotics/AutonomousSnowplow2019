@@ -5,8 +5,9 @@ constructor for orientation interface.
 This takes a reference to an atomic
 double so its easy to modify the 
 ---------------------------------------*/
-orientation_handler::orientation_handler(atomic<double> * orientation) {
-	prv_ori_ref = orientation;
+orientation_handler::orientation_handler(atomic<double> * orientation, atomic<bool> * orientation_ready) {
+	prv_ori_ref   = orientation;
+	prv_ori_ready = orientation_ready; //this flag is set true when the value start getting set to orientations
 }
 
 /*---------------------------------------
@@ -46,6 +47,7 @@ void orientation_handler::run() {
 					ori = 0.0;
 				}
 				*prv_ori_ref = ori;
+				*prv_ori_ready = true;
 				continue;
 			}
 		}

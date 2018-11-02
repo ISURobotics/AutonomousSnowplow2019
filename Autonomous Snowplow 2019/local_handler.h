@@ -16,9 +16,10 @@ using namespace std;
 class decawave_handler {
 
 public:
-							        decawave_handler(atomic<double> * x_ref, atomic<double> * y_ref);
+							        decawave_handler(atomic<double> * x_ref, atomic<double> * y_ref, atomic<bool> * location_ready);
 
 private:
+	atomic<bool> *                  prv_loc_ready;
 	atomic<double> *                prv_x_pos_ref;
 	atomic<double> *                prv_y_pos_ref;
 

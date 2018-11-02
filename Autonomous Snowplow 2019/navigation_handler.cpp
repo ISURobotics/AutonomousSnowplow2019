@@ -1,8 +1,8 @@
 #include "navigation_handler.h"
 
 navigation_handler::navigation_handler(atomic<double> * orientation, atomic<double> * x_pos,
-	atomic<double> * y_pos) {
-	 
+	atomic<double> * y_pos, motor_interface * motor_com) {
+	prv_motor_ref = motor_com;
 	prv_ori_ref = orientation;
 	prv_x_ref   = x_pos;
 	prv_y_ref   = y_pos;
@@ -17,7 +17,9 @@ navigation_handler::navigation_handler(atomic<double> * orientation, atomic<doub
 	cin >> prv_target.y;
 
 #elif( NAV_POINT_METHOD == LIST )
+
 //need functionality to grab list and set first point
+
 #endif
 
 	/*---------------------------------------
@@ -54,9 +56,15 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 	 &&   ( cur_y < ( prv_target.y + NAV_POINT_THRESH_M ) ) ) ) {
 
 #if( NAV_POINT_METHOD == MANUAL )
+
 		/*---------------------------------------
-		Get the next target
+		its at the point so stop the robot and 
+		wait for the next input point
 		---------------------------------------*/
+		drive_pkt->drive_op = STOP;
+		drive_pkt->changed = true;
+		prv_motor_ref->send_pkt_to_motors();
+		
 		cout << "Reached target. Enter a new point" << endl;
 		cout << "Enter an x coordinate: ";
 		cin >> prv_target.x;
@@ -64,6 +72,7 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 		cin >> prv_target.y;
 
 #elif( NAV_POINT_METHOD == LIST )
+
 		//need functionality to grab next target from list
 		//if reached final point return stop for drive op
 
@@ -105,11 +114,11 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 		double cur_ori = *prv_ori_ref;
 		if( modified && ( ( cur_ori > ( lower_bound ) )
 	     || ( cur_ori < ( higher_bound ) ) ) ) {
-			cout << "current orientation works." << endl;
+			//cout << "current orientation works." << endl;
 		}
 		else if (!modified && ( ( cur_ori > ( lower_bound ) )
 	     && ( cur_ori < ( higher_bound ) ) ) ) {
-			cout << "current orientation works." << endl;
+			//cout << "current orientation works." << endl;
 		}
 		else {
 			/*---------------------------------------------
