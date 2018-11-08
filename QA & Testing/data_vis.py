@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 def display_temperature():
-	temperature_file = open('practice_temp_data.txt', 'r')
+	temperature_file = open('temperature.txt', 'r')
 	temps = []
 
 	for line in temperature_file:

@@ -48,6 +48,12 @@
     <ClCompile Include="data_log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dead_reckoning.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="temperature_interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lidar_handler.h">
@@ -81,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="data_log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dead_reckoning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="temperature_interface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

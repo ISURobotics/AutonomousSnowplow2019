@@ -9,15 +9,18 @@
 #include "navigation_handler.h"
 #include "motor_interface.h"
 #include "stopsign_detector.h"
+#include "SerialPort.h"
+#include "temperature_interface.h"
+#include "dead_reckoning.h"
 
 /*----------------------------------------------------------------
                           main variables
 ----------------------------------------------------------------*/
 unsigned long long              main_loop_iterations = 0;
 unsigned long long              total_failed_scans = 0;
-atomic<double>                  orientation = 0.0;
-atomic<double>                  x_position = NULL;
-atomic<double>                  y_position = NULL;
+atomic<long>                    location_last_updated = NULL;
+atomic<double>                  orientation = 0.0, temperature = NULL;
+atomic<double>                  x_position = NULL, y_position = NULL;
 atomic<bool>					stopsign_detected = NULL, location_ready = false, orientation_ready = false;
 drive_data_pkt                  drive_pkt = { STOP, 0x00, TRUE, 0x5 };
 
@@ -38,17 +41,21 @@ int main() {
 	---------------------------------------*/
 	lidar_handler          Lidar;
 	orientation_handler    Orientation(&orientation, &orientation_ready);
-	decawave_handler       Location(&x_position, &y_position, &location_ready);
+	decawave_handler       Location(&x_position, &y_position, &location_ready, &location_last_updated);
 	grid_handler           Grid(&Lidar, &orientation, &x_position, &y_position);
 	motor_interface        Motor(&drive_pkt);
 	stopsign_detector	   ss_det(false, &stopsign_detected);
+	temperature_interface  temp_track(&temperature);
 
 	/*---------------------------------------
-	start orientation and location threads.
+	start orientation, location, stopsign,
+	and temperature threads.
 	---------------------------------------*/
 	thread location_thread(&decawave_handler::run, Location);
 	thread orientation_thread(&orientation_handler::run, Orientation);
 	thread stopsign_thread(&stopsign_detector::run, ss_det);
+	thread temperature_thread(&temperature_interface::run, temp_track);
+	Sleep(10);
 
 	/*---------------------------------------
 	wait for first orientation and location
@@ -63,11 +70,16 @@ int main() {
 	location will determine the next operation.
 	--------------------------------------------*/
 	navigation_handler     Nav(&orientation, &x_position, &y_position, &Motor);
+	dead_reckoning         dead_reck(&x_position, &y_position, &orientation, &drive_pkt, &location_last_updated);
 
 	/*---------------------------------------
 	main snowplow execution loop
 	---------------------------------------*/
 	while (1) {
+		/*---------------------------------------
+		use dead reckoning to update position
+		---------------------------------------*/
+		dead_reck.UpdatePosition();
 
 		/*-----------------------------------------------------------------
 		Check for stopsign. if there is one copy current command, send
@@ -104,15 +116,15 @@ int main() {
 		//	continue;
 		//}
 
-		/*---------------------------------------
-		analyze scan (change raw hex to angle and
-		distance pairs)
-		---------------------------------------*/
+		///*---------------------------------------
+		//analyze scan (change raw hex to angle and
+		//distance pairs)
+		//---------------------------------------*/
 		//Lidar.analyze_scan();
 
-		/*---------------------------------------
-		update map of hits
-		---------------------------------------*/
+		///*---------------------------------------
+		//update map of hits
+		//---------------------------------------*/
 		//if (!Grid.update_hit_map()) {
 		//	cout << "Error updating hit map. Trying again..." << endl;
 		//	continue;
@@ -141,8 +153,10 @@ int main() {
 
 			//testing stuff
 			cout << "Orientation: " << orientation << endl;
-			cout << "x pos: " << x_position << endl;
-			cout << "y pos: " << y_position << endl;
+			cout << "x pos: " << x_position;
+			cout << ", y pos: " << y_position << endl;
+			cout << "temperature: " << temperature << endl;
+			cout << "drive operation: " << (int)drive_pkt.drive_op << endl;
 		}		
 
 #if MAIN_TIMING

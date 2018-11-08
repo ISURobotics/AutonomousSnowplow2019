@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\dlib-19.16\dlib\all\source.cpp" />
     <ClCompile Include="data_log.cpp" />
+    <ClCompile Include="dead_reckoning.cpp" />
     <ClCompile Include="grid_handler.cpp" />
     <ClCompile Include="lidar_interface.cpp" />
     <ClCompile Include="location_interface.cpp" />
@@ -132,9 +133,11 @@
     <ClCompile Include="imu_interface.cpp" />
     <ClCompile Include="serial_port.cpp" />
     <ClCompile Include="stopsign_detector.cpp" />
+    <ClCompile Include="temperature_interface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="data_log.h" />
+    <ClInclude Include="dead_reckoning.h" />
     <ClInclude Include="grid.h" />
     <ClInclude Include="lidar_handler.h" />
     <ClInclude Include="macro_defs.h" />
@@ -145,6 +148,7 @@
     <ClInclude Include="orientation_handler.h" />
     <ClInclude Include="SerialPort.h" />
     <ClInclude Include="stopsign_detector.h" />
+    <ClInclude Include="temperature_interface.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
