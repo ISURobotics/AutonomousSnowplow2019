@@ -15,16 +15,16 @@ used here can be found in macro_defs.cpp
 ---------------------------------------------------*/
 #define LIDAR_IN_USE       LMS_511
 #define DECAWAVE_COM_PORT  ( "\\\\.\\COM7" )
-#define IMU_COM_PORT       ( "\\\\.\\COM3" )
+#define IMU_COM_PORT       ( "\\\\.\\COM4" )
 #define MOTOR_COM_PORT     ( "\\\\.\\COM6" )
 #define TEMP_COM_PORT      ( "\\\\.\\COM9" )
-#define FIELD              CUSTOM
+#define FIELD              SINGLE_I
 #define MAP_RESOLUTION_M   ( 0.1 )
 #define MAP_OBJ_THRESH     ( 100 )
-#define NAV_POINT_METHOD   MANUAL
-#define NAV_POINT_THRESH_M ( 0.30 )
-#define ORI_THRESH_D       ( 5.0 )
-#define SPEED_SCALAR       ( 1.0 )
+#define NAV_POINT_METHOD   LIST
+#define NAV_POINT_THRESH_M ( 0.20 )
+#define ORI_THRESH_D       ( 10.0 )//not currently used
+#define SPEED_SCALAR       ( 1.00 )
 
 /*---------------------------------------
 lidar macros
@@ -76,9 +76,9 @@ and see output in the console
 /*---------------------------------------
 Project specific types
 ---------------------------------------*/
-typedef vector<tuple<double, double>> lidar_data_packet;
+typedef std::vector<tuple<double, double>> lidar_data_packet;
 
-typedef vector<vector<int>> lidar_hit_map;
+typedef std::vector<std::vector<int>> lidar_hit_map;
 
 typedef uint8_t drive_operation;
 enum {

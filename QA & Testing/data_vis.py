@@ -1,5 +1,17 @@
 import matplotlib.pyplot as plt
 
+def display_orientation():
+	orientation_file = open('orientation.txt', 'r')
+	orientations = []
+
+	for line in orientation_file:
+		orientations.append(float(line))
+
+	plt.subplot(223)
+	plt.plot(orientations)
+	plt.title('heading')
+	plt.grid(True)
+
 def display_temperature():
 	temperature_file = open('temperature.txt', 'r')
 	temps = []
@@ -34,6 +46,7 @@ def main():
 	plt.figure(1)
 	display_location()
 	display_temperature()
+	display_orientation()
 	plt.show()
 
 if __name__ == "__main__":

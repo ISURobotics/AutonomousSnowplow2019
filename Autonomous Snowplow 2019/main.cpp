@@ -12,6 +12,8 @@
 #include "SerialPort.h"
 #include "temperature_interface.h"
 #include "dead_reckoning.h"
+#include "wayqueue.h"
+#include "path.h"
 
 /*----------------------------------------------------------------
                           main variables
@@ -23,6 +25,7 @@ atomic<double>                  orientation = 0.0, temperature = NULL;
 atomic<double>                  x_position = NULL, y_position = NULL;
 atomic<bool>					stopsign_detected = NULL, location_ready = false, orientation_ready = false;
 drive_data_pkt                  drive_pkt = { STOP, 0x00, TRUE, 0x5 };
+Wayqueue                        main_point_queue;
 
 int main() {
 
@@ -30,7 +33,7 @@ int main() {
 	auto current_time = clock();
 #endif
 	//start timer for main loop print statements
-	auto print_timer = clock();
+	auto print_timer = clock(), loop_timer = clock();
 
 	/*---------------------------------------
 	construct interfaces - they take in refs
@@ -51,17 +54,28 @@ int main() {
 	start orientation, location, stopsign,
 	and temperature threads.
 	---------------------------------------*/
-	thread location_thread(&decawave_handler::run, Location);
-	thread orientation_thread(&orientation_handler::run, Orientation);
-	thread stopsign_thread(&stopsign_detector::run, ss_det);
-	thread temperature_thread(&temperature_interface::run, temp_track);
+	thread                 location_thread(&decawave_handler::run, Location);
+	thread                 orientation_thread(&orientation_handler::run, Orientation);
+	thread                 stopsign_thread(&stopsign_detector::run, ss_det);
+	thread                 temperature_thread(&temperature_interface::run, temp_track);
 	Sleep(10);
+
+	/*---------------------------------------
+	field coverage
+	---------------------------------------*/
+	Path                   coverage;
+	coverage.setMapAttributes(FIELD_WIDTH_M, FIELD_LENGTH_M, 100);
+	coverage.initializeMap();
+	coverage.setBoxMeshAttributes(11, 3, 100, 300, 100);
+	coverage.initializeBoxMesh();
+	coverage.initializeBasicPath(main_point_queue);
+	//main_point_queue.display();
 
 	/*---------------------------------------
 	wait for first orientation and location
 	readings
 	---------------------------------------*/
-	//while (!orientation_ready && !location_ready) {}
+	while (!orientation_ready && !location_ready) {}
 
 	/*--------------------------------------------
 	Construct the navigation interface after
@@ -69,13 +83,18 @@ int main() {
 	and location because the set orientation and
 	location will determine the next operation.
 	--------------------------------------------*/
-	navigation_handler     Nav(&orientation, &x_position, &y_position, &Motor);
+	navigation_handler     Nav(&orientation, &x_position, &y_position, &Motor, &main_point_queue);
 	dead_reckoning         dead_reck(&x_position, &y_position, &orientation, &drive_pkt, &location_last_updated);
 
 	/*---------------------------------------
 	main snowplow execution loop
 	---------------------------------------*/
 	while (1) {
+
+		//a way to control the speed that this loop executes
+		while ((clock() - loop_timer) / (double)CLOCKS_PER_SEC * 1000 < (1000/100)) {}
+		loop_timer = clock();
+
 		/*---------------------------------------
 		use dead reckoning to update position
 		---------------------------------------*/
@@ -95,7 +114,7 @@ int main() {
 			Motor.send_pkt_to_motors();
 			cout << "Send stop command." << endl;
 
-			Sleep(500);//waiting for atleast half a second
+			Sleep(5000);//waiting for atleast half a second
 			while (stopsign_detected) {
 				//wait for stop sign to go away
 			}

@@ -20,16 +20,15 @@ void loop() {
     op = Serial.read();
     intensity = Serial.read();
     stopc = Serial.read();
-
   }
 
-  for (int i = 0; i < stopc; i++)
-  {
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(50);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(50);
-  }
+//  for (int i = 0; i < stopc; i++)
+//  {
+//    digitalWrite(LED_BUILTIN, HIGH);
+//    delay(50);
+//    digitalWrite(LED_BUILTIN, LOW);
+//    delay(50);
+//  }
 
   int power = map(intensity, 0, 255, 0, 500);
   //check for -1 flag
@@ -45,7 +44,7 @@ void loop() {
       turn_right(power);
     } else if (op == 3) {
       //stop
-      stop();
+      stop_();
     }
   }
 }
@@ -69,7 +68,7 @@ void move_backward(int power)
   leftServo.writeMicroseconds(1500 - power);
   rightServo.writeMicroseconds(1500 - power);
 }
-void stop()
+void stop_()
 {
   leftServo.writeMicroseconds(1500);
   rightServo.writeMicroseconds(1500);

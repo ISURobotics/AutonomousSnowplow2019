@@ -1,11 +1,27 @@
 #include "navigation_handler.h"
+#include "wayqueue.h"
 
 navigation_handler::navigation_handler(atomic<double> * orientation, atomic<double> * x_pos,
-	atomic<double> * y_pos, motor_interface * motor_com) {
+	atomic<double> * y_pos, motor_interface * motor_com, Wayqueue * queue) {
+
+	prv_queue = queue;
 	prv_motor_ref = motor_com;
 	prv_ori_ref = orientation;
 	prv_x_ref   = x_pos;
 	prv_y_ref   = y_pos;
+
+	//Wayqueue queue;
+	//Point p1, p2, p3, p4;
+	//p1.x = 1.5; p1.y = 1.3;
+	//p2.x = 1.0; p2.y = 6.5;
+	//p3.x = 6.5; p3.y = 6.5;
+	//p4.x = 6.5; p4.y = 1.0;
+	//queue.push(&p1);
+	//queue.push(&p2);
+	//queue.push(&p3);
+	//queue.push(&p4);
+	//queue.push(&p1);
+
 
 #if( NAV_POINT_METHOD == MANUAL )
 	/*---------------------------------------
@@ -18,14 +34,23 @@ navigation_handler::navigation_handler(atomic<double> * orientation, atomic<doub
 
 #elif( NAV_POINT_METHOD == LIST )
 
-//need functionality to grab list and set first point
+	if ((*prv_queue).getSize() > 0) {
+		Point * temp = (*prv_queue).pop();
+		cout << "x: " << temp->x << " y: " << temp->y << endl;
+		prv_target.x = temp->x;
+		prv_target.y = temp->y;
+	}
+	else {
+		cout << "Quitting. No points in queue." << endl;
+		exit(0);
+	}
 
 #endif
 
 	/*---------------------------------------
 	Find goal orientation
 	---------------------------------------*/
-	prv_goal_orientation = ( 180.0 * atan2( prv_target.y - *prv_y_ref, prv_target.x - *prv_x_ref ) ) / M_PI;
+	prv_goal_orientation = ( 180.0 * atan2( prv_target.y - ( *prv_y_ref ), prv_target.x - ( *prv_x_ref ) ) ) / M_PI;
 	prv_goal_orientation -= 90;
 	if (prv_goal_orientation < 0) {
 		prv_goal_orientation = 360 + prv_goal_orientation;
@@ -50,10 +75,8 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 	---------------------------------------------*/
 	double cur_x = *prv_x_ref;
 	double cur_y = *prv_y_ref;
-	if( ( ( cur_x > ( prv_target.x - NAV_POINT_THRESH_M ) ) 
-	 &&   ( cur_x < ( prv_target.x + NAV_POINT_THRESH_M ) ) )
-	 && ( ( cur_y > ( prv_target.y - NAV_POINT_THRESH_M ) )
-	 &&   ( cur_y < ( prv_target.y + NAV_POINT_THRESH_M ) ) ) ) {
+	double distance_to_point = sqrt(pow((prv_target.x - cur_x), 2) + pow((prv_target.y - cur_y), 2));
+	if( distance_to_point <= NAV_POINT_THRESH_M ) {
 
 #if( NAV_POINT_METHOD == MANUAL )
 
@@ -73,35 +96,46 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 
 #elif( NAV_POINT_METHOD == LIST )
 
-		//need functionality to grab next target from list
 		//if reached final point return stop for drive op
+		if ((*prv_queue).getSize() > 0) {
+			Point * temp = (*prv_queue).pop();
+			cout << "x: " << temp->x << " y: " << temp->y << endl;
+			prv_target.x = temp->x;
+			prv_target.y = temp->y;
+		}
+		else {
+			drive_pkt->drive_op = STOP;
+			drive_pkt->changed = true;
+			prv_motor_ref->send_pkt_to_motors();
+			cout << "Quitting..." << endl;
+			exit(0);
+		}
 
 #endif
 
-		/*---------------------------------------
-		Recalculate orientation for next target
-		---------------------------------------*/
-		prv_goal_orientation = ( 180.0 * atan2( prv_target.y - cur_y, prv_target.x - cur_x ) ) / M_PI;
-		if (prv_goal_orientation < 0) {
-			prv_goal_orientation = 360 + prv_goal_orientation;
-		}
-		prv_goal_orientation -= 90;
+		prv_goal_orientation = get_orientation(cur_x, cur_y);
 
 	}
 	else {
 
+		prv_goal_orientation = get_orientation(cur_x, cur_y);
+
 		/*---------------------------------------------
 		calculate orientation boundaries. modified is
 		to signal when the goal +/- tolerance contains
-		thye 0 degree mark because math gets confusing
+		the 0 degree mark because math gets confusing
 		---------------------------------------------*/
+
+		double orientation_tolerance = atan( NAV_POINT_THRESH_M / distance_to_point ) * 180.0 / M_PI/2.0;
+		//cout << "orientation tolerance is: " << orientation_tolerance << endl;
+
 		bool modified = false;
-		double lower_bound = prv_goal_orientation - ORI_THRESH_D;
+		double lower_bound = prv_goal_orientation - (orientation_tolerance);
 		if (lower_bound < 0) {
 			lower_bound += 360.0;
 			modified = true;
 		}
-		double higher_bound = prv_goal_orientation + ORI_THRESH_D;
+		double higher_bound = prv_goal_orientation + (orientation_tolerance);
 		if (higher_bound > 360) {
 			higher_bound -= 360;
 			modified = true;
@@ -196,10 +230,10 @@ unsigned char navigation_handler::get_turn_power( double deg ) {
 		return ( floor( 0.8 * SPEED_SCALAR * UCHAR_MAX ) );
 	}
 	else if ( deg >= 45.0 ) {
-		return ( floor( 0.5 * SPEED_SCALAR * UCHAR_MAX ) );
+		return ( floor( 0.65 * SPEED_SCALAR * UCHAR_MAX ) );
 	}
 	else {
-		return ( floor( 0.35 * SPEED_SCALAR * UCHAR_MAX ) );
+		return ( floor( 0.40 * SPEED_SCALAR * UCHAR_MAX ) );
 	}
 }
 
@@ -208,12 +242,28 @@ unsigned char navigation_handler::get_straight_power( double dist ) {
 		return ( floor( 1.0 * SPEED_SCALAR * UCHAR_MAX ) );
 	}
 	else if ( dist >= 1.0 ) {
-		return ( floor( 0.6 * SPEED_SCALAR * UCHAR_MAX ) );
+		return ( floor( 0.8 * SPEED_SCALAR * UCHAR_MAX ) );
 	}
 	else if ( dist >= 0.5 ) {
-		return ( floor( 0.4 * SPEED_SCALAR * UCHAR_MAX ) );
+		return ( floor( 0.6 * SPEED_SCALAR * UCHAR_MAX ) );
 	}
 	else {
-		return ( floor( 0.3 * SPEED_SCALAR * UCHAR_MAX ) );
+		return ( floor( 0.5 * SPEED_SCALAR * UCHAR_MAX ) );
 	}
 }
+
+double navigation_handler::get_orientation(double cur_x, double cur_y) {
+
+	/*---------------------------------------
+	Recalculate orientation for next target
+	---------------------------------------*/
+	double goal_orientation = (180.0 * atan2(prv_target.y - cur_y, prv_target.x - cur_x)) / M_PI;
+	if (goal_orientation < 0.0) {
+		goal_orientation = 360.0 + goal_orientation;
+	}
+
+	goal_orientation -= 90.0;
+
+	return goal_orientation;
+}
+

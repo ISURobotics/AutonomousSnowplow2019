@@ -1,4 +1,5 @@
 #include "orientation_handler.h"
+#include "data_log.h"
 
 /*---------------------------------------
 constructor for orientation interface.
@@ -25,6 +26,8 @@ void orientation_handler::run() {
 	int readResult = 0;
 	bool firstOpen = false;
 
+	data_logger ori_log("orientation");
+
 	/*--------------------------------------------------
 	this works, but should probably be cleaned up
 	--------------------------------------------------*/
@@ -47,6 +50,7 @@ void orientation_handler::run() {
 					ori = 0.0;
 				}
 				*prv_ori_ref = ori;
+				ori_log.log_data(to_string(ori));
 				*prv_ori_ready = true;
 				continue;
 			}
