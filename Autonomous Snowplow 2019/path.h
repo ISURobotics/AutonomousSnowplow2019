@@ -67,6 +67,9 @@ public:
 	void initializeBasicPath(Wayqueue &queue);
 
 	/*  */
+	void avoid_obstacle(Wayqueue &queue, snowplow_nav_point obj);
+
+	/*  */
 	void addObstacle(int x, int y, int rad);
 
 	/*  */

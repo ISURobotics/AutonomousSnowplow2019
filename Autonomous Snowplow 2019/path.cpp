@@ -5,6 +5,7 @@
 
 #include "path.h"
 #include "wayqueue.h"
+#include "snowplow_type.h"
 
 using namespace std;
 
@@ -216,5 +217,10 @@ void Path::initializeBasicPath(Wayqueue &queue)
 		temp2.y = 1.5;
 
 	}
-		queue.push(&temp2);
+		//queue.push(&temp2);
+}
+void Path::avoid_obstacle(Wayqueue &queue, snowplow_nav_point obj) {
+
+
+
 }
