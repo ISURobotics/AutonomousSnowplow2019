@@ -23,7 +23,7 @@ unsigned long long              total_failed_scans = 0;
 atomic<long>                    location_last_updated = NULL;
 atomic<double>                  orientation = 0.0, temperature = NULL;
 atomic<double>                  x_position = NULL, y_position = NULL;
-atomic<bool>					stopsign_detected = NULL, location_ready = false, orientation_ready = false;
+atomic<bool>					stopsign_detected = NULL, location_ready = false, orientation_ready = false, obj_pres = false;
 drive_data_pkt                  drive_pkt = { STOP, 0x00, TRUE, 0x5 };
 Wayqueue                        main_point_queue;
 
@@ -38,7 +38,7 @@ int main() {
 	/*---------------------------------------
 	construct interfaces - they take in refs
 	to atomic variables so that their object
-	can safely modify them without having to 
+	can safely modify them without having to
 	return anything. They can also read them
 	whenever needed safely.
 	---------------------------------------*/
@@ -64,17 +64,54 @@ int main() {
 	field coverage
 	---------------------------------------*/
 	Path                   coverage;
+
+#if( FIELD == SINGLE_I )
+
+	/*---------------------------------------
+	building path for single I field
+	According to the rules there won't be any
+	object in the snow path so no obj avoid
+	---------------------------------------*/
 	coverage.setMapAttributes(FIELD_WIDTH_M, FIELD_LENGTH_M, 100);
 	coverage.initializeMap();
-	coverage.setBoxMeshAttributes(11, 3, 100, 300, 100);
+	coverage.setBoxMeshAttributes(11, 1, 200, 300, 100);
 	coverage.initializeBoxMesh();
 	coverage.initializeBasicPath(main_point_queue);
-	//main_point_queue.display();
+	main_point_queue.display();
+
+#elif( FIELD == DOUBLE_I )
+
+	//manually push points into wayqueue since our bot can't handle going back and forth
+
+	double cov_x_pos = 1.5;
+
+	for (double i = 3.0; i <= 13.0; i+=1.0) {
+		Point temp;
+		temp.x = cov_x_pos;
+		temp.y = i;
+		main_point_queue.push(&temp);
+	}
+	cov_x_pos = 2.5;
+	for (double i = 13.0; i >= 3.0; i -= 1.0) {
+		Point temp;
+		temp.x = cov_x_pos;
+		temp.y = i;
+		main_point_queue.push(&temp);
+	}
+	Point temp;
+	temp.x = 2.0;
+	temp.y = 2.0;
+	main_point_queue.push(&temp);
+
+	main_point_queue.display();
+
+#endif
 
 	/*---------------------------------------
 	wait for first orientation and location
 	readings
 	---------------------------------------*/
+	cout << "Waiting for initial location and orientation readings." << endl;
 	while (!orientation_ready && !location_ready) {}
 
 	/*--------------------------------------------
@@ -83,7 +120,7 @@ int main() {
 	and location because the set orientation and
 	location will determine the next operation.
 	--------------------------------------------*/
-	navigation_handler     Nav(&orientation, &x_position, &y_position, &Motor, &main_point_queue);
+	navigation_handler     Nav(&orientation, &x_position, &y_position, &Motor, &main_point_queue, &obj_pres);
 	dead_reckoning         dead_reck(&x_position, &y_position, &orientation, &drive_pkt, &location_last_updated);
 
 	/*---------------------------------------
@@ -129,26 +166,32 @@ int main() {
 		/*---------------------------------------
 		perform scan and check for success
 		---------------------------------------*/
-		//if (!Lidar.perform_scan()) {
-		//	cout << "Error performing scan. Trying again..." << endl;
-		//	total_failed_scans += 1;
-		//	continue;
-		//}
+		if (!Lidar.perform_scan()) {
+			cout << "Error performing scan. Trying again..." << endl;
+			total_failed_scans += 1;
+			continue;
+		}
 
-		///*---------------------------------------
-		//analyze scan (change raw hex to angle and
-		//distance pairs)
-		//---------------------------------------*/
-		//Lidar.analyze_scan();
+		/*---------------------------------------
+		analyze scan (change raw hex to angle and
+		distance pairs)
+		---------------------------------------*/
+		Lidar.analyze_scan();
 
-		///*---------------------------------------
-		//update map of hits
-		//---------------------------------------*/
-		//if (!Grid.update_hit_map()) {
-		//	cout << "Error updating hit map. Trying again..." << endl;
-		//	continue;
-		//}
+		/*---------------------------------------
+		update map of hits
+		---------------------------------------*/
+		if (!Grid.update_hit_map()) {
+			cout << "Error updating hit map. Trying again..." << endl;
+			continue;
+		}
 
+		/*---------------------------------------
+		check for object in front of plow
+		---------------------------------------*/
+#if ( FIELD == DOUBLE_I )
+		obj_pres = Grid.is_obj_present();
+#endif
 		/*---------------------------------------
 		get drive operation from nav interface
 		---------------------------------------*/

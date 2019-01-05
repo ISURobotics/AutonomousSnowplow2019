@@ -18,12 +18,12 @@ used here can be found in macro_defs.cpp
 #define IMU_COM_PORT       ( "\\\\.\\COM4" )
 #define MOTOR_COM_PORT     ( "\\\\.\\COM6" )
 #define TEMP_COM_PORT      ( "\\\\.\\COM9" )
-#define FIELD              SINGLE_I
-#define MAP_RESOLUTION_M   ( 0.1 )
+#define FIELD              DOUBLE_I
+#define MAP_RESOLUTION_M   ( 0.10 )
 #define MAP_OBJ_THRESH     ( 100 )
 #define NAV_POINT_METHOD   LIST
-#define NAV_POINT_THRESH_M ( 0.20 )
-#define ORI_THRESH_D       ( 10.0 )//not currently used
+#define NAV_POINT_THRESH_M ( 0.10 )
+#define ORI_THRESH_D       ( 5.0 )
 #define SPEED_SCALAR       ( 1.00 )
 
 /*---------------------------------------
@@ -58,7 +58,7 @@ length under field == custom
 #if( FIELD == SINGLE_I )
 #define FIELD_WIDTH_M    ( 4.0 )
 #define FIELD_LENGTH_M   ( 15.0 )
-#elif( FIELD == TRIPLE_I )
+#elif( FIELD == DOUBLE_I )
 #define FIELD_WIDTH_M    ( 7.0 )
 #define FIELD_LENGTH_M   ( 15.0 )
 #elif( FIELD == CUSTOM )

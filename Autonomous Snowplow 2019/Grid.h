@@ -28,10 +28,12 @@ private:
 	atomic<double> *                prv_orientation_ref;
 	atomic<double> *                prv_x_pos_ref;
 	atomic<double> *                prv_y_pos_ref;
+	vector<snowplow_nav_point>      loc_point_list;
 
 public:
 	bool							update_hit_map();
 	void							print_hit_map();
 	void                            print_obj_map();
+	bool is_obj_present();
 
 };

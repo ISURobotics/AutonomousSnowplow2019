@@ -35,6 +35,7 @@ grid_handler::grid_handler(lidar_handler * lidar, atomic<double> * orientation,
 Adds lidar hits to the map
 ---------------------------------------*/
 bool grid_handler::update_hit_map() {
+	loc_point_list.clear();
 	if (!prv_lidar_ref->data_is_ready()) {
 		cout << "Data isn't ready for grid to process. Grid update failed." << endl;
 		return false;
@@ -61,6 +62,7 @@ bool grid_handler::update_hit_map() {
 	double orientation = *prv_orientation_ref;
 	double x_pos = *prv_x_pos_ref;
 	double y_pos = *prv_y_pos_ref;
+	
 	for (int i = 0; i < LIDAR_DATA_POINTS; i++) {
 
 		/*---------------------------------------------
@@ -74,7 +76,9 @@ bool grid_handler::update_hit_map() {
 		---------------------------------------------*/
 		double angle      = get< 0 >( ( * prv_data_packet )[ i ]);
 		double distance   = get< 1 >( ( * prv_data_packet )[ i ]);
-
+		snowplow_nav_point a;
+		a.x = (cos(angle * M_PI / 180.0) * distance);
+		a.y = (sin(angle * M_PI / 180.0) * distance);
 		if (angle < 0) {
 			angle = 360 - abs(angle);
 		}
@@ -88,7 +92,11 @@ bool grid_handler::update_hit_map() {
 
 		double x_loc = ( cos( angle * M_PI / 180.0) * distance ) + x_pos;
 		double y_loc = ( sin( angle * M_PI / 180.0) * distance ) + y_pos;
-			
+		
+		/*---------------------------------------
+		
+		---------------------------------------*/
+		loc_point_list.push_back(a);
 
 		//temporary for debugging
 		if (i == (floor(LIDAR_DATA_POINTS / 2))) {
@@ -180,4 +188,23 @@ void grid_handler::print_obj_map() {
 		map.append("\n");
 	}
 	cout << map;
+}
+
+bool grid_handler::is_obj_present() {
+	/*----------------------------------------------------------------------
+	This function iterates through a list of 
+	----------------------------------------------------------------------*/
+
+	bool ret = false;
+	for (int i = 0; i < loc_point_list.size(); i++)
+	{
+		double curX = loc_point_list[i].x;
+		double curY = loc_point_list[i].y;
+		if (abs(curX) < 1.1 && abs(curY) < 2 && curY > .1)
+		{
+			ret = true;
+			std::cout << "******************************************OBJECT DETECTED" << std::endl;
+		}
+	}
+	return ret;
 }

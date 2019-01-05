@@ -7,7 +7,7 @@
 //field options
 #define CUSTOM   ( 0 )
 #define SINGLE_I ( 1 )
-#define TRIPLE_I ( 2 )
+#define DOUBLE_I ( 2 )
 
 //navigation options
 #define LIST   ( 0 )

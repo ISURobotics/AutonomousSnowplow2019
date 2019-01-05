@@ -4,6 +4,11 @@
 #include <utility/imumaths.h>
 #define BNO055_SAMPLERATE_DELAY_MS (10)
 Adafruit_BNO055 bno = Adafruit_BNO055();
+
+#define ROLLING_AVG_NUM 15
+
+int rolling_avg[ROLLING_AVG_NUM] = {0};
+
 void setup() {
   Serial.begin(115200);
   if(!bno.begin())
@@ -17,32 +22,57 @@ void setup() {
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
 }
+
+
+
 void loop() {
   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+//  imu::Vector<3> gyro = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+  
   Serial.print("[");
   Serial.print(360-euler.x());
   Serial.println("]");
-  if(Serial.available())
-  {
-    char c = Serial.read();
-    if(c=='f')
-    {
-      digitalWrite(2, HIGH);
-      digitalWrite(3, LOW);
-      digitalWrite(4, LOW);
-    }
-    if(c=='l')
-    {
-      digitalWrite(2, LOW);
-      digitalWrite(3, HIGH);
-      digitalWrite(4, LOW);
-    }
-    if(c=='r')
-    {
-      digitalWrite(2, LOW);
-      digitalWrite(3, LOW);
-      digitalWrite(4, HIGH);
-    }
-  }
+
+
+//  Serial.print("The Angular velocity is: ");
+//  Serial.print("x: ");
+//  Serial.print(gyro.x());
+//  Serial.print(" y: ");
+//  Serial.print(gyro.y());
+//  Serial.print(" z: ");
+//  Serial.println(gyro.z());
+
+//  shift_array(rolling_avg, ROLLING_AVG_NUM);
+//  rolling_avg[0] = gyro.x();
+//  Serial.print("Avg: ");
+//  Serial.println(get_avg(rolling_avg, ROLLING_AVG_NUM));
+//  Serial.println(gyro.x());
+
+  
+  
   delay(BNO055_SAMPLERATE_DELAY_MS);
+}
+
+void shift_array(int * arr, int length_arr){
+
+  for(int i = 0;i < length_arr;i++){
+    
+    arr[i+1] = arr[i];
+    
+  }
+  
+}
+
+double get_avg(int * arr, int length_arr){
+
+  double total = 0.0;
+
+  for(int i = 0;i < length_arr;i++){
+
+    total += arr[i];
+    
+  }
+
+  return (total / (double)length_arr);
+  
 }

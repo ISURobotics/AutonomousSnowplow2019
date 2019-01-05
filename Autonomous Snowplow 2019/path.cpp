@@ -212,8 +212,8 @@ void Path::initializeBasicPath(Wayqueue &queue)
 			loop_config = 0;
 		}
 		
-		temp2.x = 1;
-		temp2.y = 3;
+		temp2.x = 2;
+		temp2.y = 1.5;
 
 	}
 		queue.push(&temp2);

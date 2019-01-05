@@ -2,8 +2,8 @@
 #include "wayqueue.h"
 
 navigation_handler::navigation_handler(atomic<double> * orientation, atomic<double> * x_pos,
-	atomic<double> * y_pos, motor_interface * motor_com, Wayqueue * queue) {
-
+	atomic<double> * y_pos, motor_interface * motor_com, Wayqueue * queue, atomic<bool>* obj_pres1) {
+	obj_pres = obj_pres1;
 	prv_queue = queue;
 	prv_motor_ref = motor_com;
 	prv_ori_ref = orientation;
@@ -100,7 +100,11 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 		if ((*prv_queue).getSize() > 0) {
 			Point * temp = (*prv_queue).pop();
 			cout << "x: " << temp->x << " y: " << temp->y << endl;
-			prv_target.x = temp->x;
+			int x_add = 0.0;
+			if (*obj_pres) { x_add = 2.0; 
+			cout << "*******************************************object detected" << endl;
+			}
+			prv_target.x = temp->x + x_add;
 			prv_target.y = temp->y;
 		}
 		else {
@@ -127,6 +131,7 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 		---------------------------------------------*/
 
 		double orientation_tolerance = atan( NAV_POINT_THRESH_M / distance_to_point ) * 180.0 / M_PI/2.0;
+		orientation_tolerance = max(orientation_tolerance, ORI_THRESH_D);
 		//cout << "orientation tolerance is: " << orientation_tolerance << endl;
 
 		bool modified = false;

@@ -161,6 +161,7 @@ void decawave_handler::run() {
 						*prv_loc_ready = true;//mark position as ready to read
 
 						ostringstream log_string;
+						log_string.precision(5);
 						log_string << temp_x << "," << temp_y;
 
 						//log position to text file

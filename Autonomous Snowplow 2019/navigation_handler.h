@@ -9,7 +9,7 @@
 class navigation_handler {
 public:
 									navigation_handler(atomic<double> * orientation, atomic<double> * x_pos,
-										atomic<double> * y_pos, motor_interface * motor, Wayqueue * q);
+										atomic<double> * y_pos, motor_interface * motor, Wayqueue * q, atomic<bool>* obj_pres);
 
 private:
 	motor_interface *               prv_motor_ref;
@@ -17,6 +17,7 @@ private:
 	atomic<double> *                prv_ori_ref;
 	atomic<double> *                prv_x_ref;
 	atomic<double> *                prv_y_ref;
+	atomic<bool> *                  obj_pres;
 	double                          prv_goal_orientation;
 	Wayqueue *                      prv_queue;
 
