@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "wayqueue.h"
+#include "snowplow_type.h"
 
 using namespace std;
 
@@ -67,7 +68,7 @@ public:
 	void initializeBasicPath(Wayqueue &queue);
 
 	/*  */
-	void avoid_obstacle(Wayqueue &queue, snowplow_nav_point obj);
+	void avoid_obstacle(Wayqueue &queue);
 
 	/*  */
 	void addObstacle(int x, int y, int rad);

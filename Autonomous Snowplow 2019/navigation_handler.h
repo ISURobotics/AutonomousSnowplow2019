@@ -20,9 +20,11 @@ private:
 	atomic<bool> *                  obj_pres;
 	double                          prv_goal_orientation;
 	Wayqueue *                      prv_queue;
+	bool                            prv_skip_point;
 
 public:
 	void                            update( drive_data_pkt * );
+	void                            skip_point();
 
 private:
 	unsigned char                   get_turn_power(double dist);

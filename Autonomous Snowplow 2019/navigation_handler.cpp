@@ -9,6 +9,7 @@ navigation_handler::navigation_handler(atomic<double> * orientation, atomic<doub
 	prv_ori_ref = orientation;
 	prv_x_ref   = x_pos;
 	prv_y_ref   = y_pos;
+	prv_skip_point = false;
 
 	//Wayqueue queue;
 	//Point p1, p2, p3, p4;
@@ -76,7 +77,7 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 	double cur_x = *prv_x_ref;
 	double cur_y = *prv_y_ref;
 	double distance_to_point = sqrt(pow((prv_target.x - cur_x), 2) + pow((prv_target.y - cur_y), 2));
-	if( distance_to_point <= NAV_POINT_THRESH_M ) {
+	if( distance_to_point <= NAV_POINT_THRESH_M || prv_skip_point) {
 
 #if( NAV_POINT_METHOD == MANUAL )
 
@@ -118,7 +119,7 @@ void navigation_handler::update( drive_data_pkt * drive_pkt ) {
 #endif
 
 		prv_goal_orientation = get_orientation(cur_x, cur_y);
-
+		prv_skip_point = false;
 	}
 	else {
 
@@ -272,3 +273,6 @@ double navigation_handler::get_orientation(double cur_x, double cur_y) {
 	return goal_orientation;
 }
 
+void navigation_handler::skip_point() {
+	prv_skip_point = true;
+}

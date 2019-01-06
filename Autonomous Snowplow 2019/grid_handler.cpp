@@ -200,10 +200,10 @@ bool grid_handler::is_obj_present() {
 	{
 		double curX = loc_point_list[i].x;
 		double curY = loc_point_list[i].y;
-		if (abs(curX) < 1.1 && abs(curY) < 2 && curY > .1)
+		if (abs(curX) < 0.5 && abs(curY) < 1.5 && curY > 1.0)
 		{
 			ret = true;
-			std::cout << "******************************************OBJECT DETECTED" << std::endl;
+			//std::cout << "******************************************OBJECT DETECTED" << std::endl;
 		}
 	}
 	return ret;

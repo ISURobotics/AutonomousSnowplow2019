@@ -26,6 +26,7 @@ atomic<double>                  x_position = NULL, y_position = NULL;
 atomic<bool>					stopsign_detected = NULL, location_ready = false, orientation_ready = false, obj_pres = false;
 drive_data_pkt                  drive_pkt = { STOP, 0x00, TRUE, 0x5 };
 Wayqueue                        main_point_queue;
+bool                            found_obj = false;
 
 int main() {
 
@@ -72,12 +73,20 @@ int main() {
 	According to the rules there won't be any
 	object in the snow path so no obj avoid
 	---------------------------------------*/
-	coverage.setMapAttributes(FIELD_WIDTH_M, FIELD_LENGTH_M, 100);
+	/*coverage.setMapAttributes(FIELD_WIDTH_M, FIELD_LENGTH_M, 100);
 	coverage.initializeMap();
 	coverage.setBoxMeshAttributes(11, 1, 200, 300, 100);
 	coverage.initializeBoxMesh();
 	coverage.initializeBasicPath(main_point_queue);
-	main_point_queue.display();
+	main_point_queue.display();*/
+
+	Point temp_s1;
+	temp_s1.x = 2;
+	temp_s1.y = 13;
+	main_point_queue.push(&temp_s1);
+	//Point temp_s2;
+	//temp_s2.x = 2;
+	//temp_s2.y = 13;
 
 #elif( FIELD == DOUBLE_I )
 
@@ -85,14 +94,14 @@ int main() {
 
 	double cov_x_pos = 1.5;
 
-	for (double i = 3.0; i <= 13.0; i+=1.0) {
+	for (double i = 3.0; i <= 12.0; i+=1.0) {
 		Point temp;
 		temp.x = cov_x_pos;
 		temp.y = i;
 		main_point_queue.push(&temp);
 	}
 	cov_x_pos = 2.5;
-	for (double i = 13.0; i >= 3.0; i -= 1.0) {
+	for (double i = 12.0; i >= 3.0; i -= 1.0) {
 		Point temp;
 		temp.x = cov_x_pos;
 		temp.y = i;
@@ -107,6 +116,10 @@ int main() {
 
 #endif
 
+	Point temp_end;
+	temp_end.x = 2;
+	temp_end.y = 2;
+	main_point_queue.push(&temp_end);
 	/*---------------------------------------
 	wait for first orientation and location
 	readings
@@ -151,7 +164,7 @@ int main() {
 			Motor.send_pkt_to_motors();
 			cout << "Send stop command." << endl;
 
-			Sleep(5000);//waiting for atleast half a second
+			Sleep(5000);//waiting for atleast 5 seconds
 			while (stopsign_detected) {
 				//wait for stop sign to go away
 			}
@@ -190,7 +203,14 @@ int main() {
 		check for object in front of plow
 		---------------------------------------*/
 #if ( FIELD == DOUBLE_I )
-		obj_pres = Grid.is_obj_present();
+		if (Grid.is_obj_present() && !found_obj && (!(orientation > 15 && orientation < 165)|| !(orientation > 195 && orientation < 345))) {
+
+			coverage.avoid_obstacle(main_point_queue);
+			main_point_queue.display();
+			Nav.skip_point();//pops to next point which isn't in front of the object
+			//sleep(5000);
+			found_obj = true;
+		}
 #endif
 		/*---------------------------------------
 		get drive operation from nav interface

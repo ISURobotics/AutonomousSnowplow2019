@@ -5,7 +5,6 @@
 
 #include "path.h"
 #include "wayqueue.h"
-#include "snowplow_type.h"
 
 using namespace std;
 
@@ -219,8 +218,54 @@ void Path::initializeBasicPath(Wayqueue &queue)
 	}
 		//queue.push(&temp2);
 }
-void Path::avoid_obstacle(Wayqueue &queue, snowplow_nav_point obj) {
+void Path::avoid_obstacle(Wayqueue &queue) {
 
+	Wayqueue new_q;
 
+	Point * next_point = queue.pop();
+	queue.pop();
+	double new_x = 0.0;
+	double old_y = next_point->y;//used to place new avoiding points
+
+	if (next_point->x == 1.5) {
+		new_x = 2.5;
+	}
+	else {
+		new_x = 1.5;
+	}
+
+	if (new_x == 2.5) {
+		Point temp;
+		temp.x = new_x;
+		temp.y = old_y - 2.0;
+		new_q.push(&temp);
+
+		Point temp4;
+		temp4.x = new_x;
+		temp4.y = old_y + 2.0;
+		new_q.push(&temp4);
+	}
+
+	if (new_x == 1.5) {
+		Point temp;
+		temp.x = new_x;
+		temp.y = old_y + 2.0;
+		new_q.push(&temp);
+
+		Point temp4;
+		temp4.x = new_x;
+		temp4.y = old_y - 2.0;
+		new_q.push(&temp4);
+	}
+
+	//empty the queue into the new one
+	while (queue.getSize() > 0) {
+		new_q.push(queue.pop());
+	}
+
+	//emtpy the whole queue back into the original one
+	while (new_q.getSize() > 0) {
+		queue.push(new_q.pop());
+	}
 
 }

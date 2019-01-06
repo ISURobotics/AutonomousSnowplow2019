@@ -18,11 +18,12 @@ used here can be found in macro_defs.cpp
 #define IMU_COM_PORT       ( "\\\\.\\COM4" )
 #define MOTOR_COM_PORT     ( "\\\\.\\COM6" )
 #define TEMP_COM_PORT      ( "\\\\.\\COM9" )
+//to change fields input either SINGLE_I or DOUBLE_I
 #define FIELD              DOUBLE_I
 #define MAP_RESOLUTION_M   ( 0.10 )
 #define MAP_OBJ_THRESH     ( 100 )
 #define NAV_POINT_METHOD   LIST
-#define NAV_POINT_THRESH_M ( 0.10 )
+#define NAV_POINT_THRESH_M ( 0.25 )
 #define ORI_THRESH_D       ( 5.0 )
 #define SPEED_SCALAR       ( 1.00 )
 
